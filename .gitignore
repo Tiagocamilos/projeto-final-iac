@@ -5,3 +5,4 @@ terraform.tfstate.d/
 *.pem
 *.rsa
 .DS_Store
+.vault_pass
