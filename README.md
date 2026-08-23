@@ -72,8 +72,3 @@ cd terraform
 terraform destroy -auto-approve
 6. Evidências de Funcionamento
 As capturas de tela e evidências de execução da aplicação na porta 3000 e da destruição dos recursos estão salvas no diretório /evidencias.
-
-
-Salve o arquivo (`Cmd + S`). O único passo que ficará faltando no seu projeto agora é rodar o `terraform apply`, tirar os prints da aplicação funcionando e da tela de destruição para salvar na pasta `evidencias/`[cite: 1]!
-
-<FollowUp label="Tudo pronto! Quer rodar o terraform apply agora?" query="Como executo o terraform apply com workspaces e valido se o Ansible rodou com sucesso?"/>
