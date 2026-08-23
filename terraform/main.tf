@@ -109,7 +109,7 @@ resource "null_resource" "ansible_provisioner" {
 
   provisioner "local-exec" {
     # Espera 30s pelo boot e chama o Ansible apontando para a pasta ../ansible
-    command = "sleep 30 && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${aws_instance.web.public_ip}, -u ubuntu --private-key ${local_file.private_key.filename} ../ansible/playbook.yml"
+    command = "sleep 30 && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${aws_instance.web.public_ip}, -u ubuntu --private-key ${local_file.private_key.filename} --vault-password-file ../ansible/.vault_pass ../ansible/playbook.yml"
   }
 
   depends_on = [aws_instance.web, local_file.private_key]

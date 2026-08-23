@@ -1,0 +1,48 @@
+---
+- name: Provisionamento do Servidor Web e Container Docker
+  hosts: all
+  become: true
+  vars_files:
+    - vault.yml
+
+  tasks:
+    - name: Atualizar o cache de pacotes APT
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Instalar Docker e o SDK Python para Docker
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - python3-docker
+        state: present
+
+    - name: Garantir que o serviço do Docker está em execução e habilitado
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Adicionar o usuário ubuntu ao grupo docker
+      ansible.builtin.user:
+        name: ubuntu
+        groups: docker
+        append: true
+
+    - name: Baixar a imagem Docker da aplicação getting-started
+      community.docker.docker_image:
+        name: docker/getting-started
+        source: pull
+        state: present
+
+    - name: Executar o container da aplicação na porta 3000
+      community.docker.docker_container:
+        name: getting-started-app
+        image: docker/getting-started
+        state: started
+        restart_policy: always
+        published_ports:
+          - "3000:80"
+        env:
+          ADMIN_PASSWORD: "{{ admin_password }}"
