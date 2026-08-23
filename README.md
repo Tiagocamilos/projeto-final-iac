@@ -1,4 +1,4 @@
-Markdown
+cat << 'EOF' > README.md
 # Projeto Final: Provisionamento e Configuração Integrados (Terraform + Ansible)
 
 Este projeto realiza o provisionamento automatizado de infraestrutura na AWS via Terraform e a configuração do ambiente/aplicação via Ansible, atendendo aos requisitos da disciplina de Infraestrutura como Código.
@@ -36,7 +36,7 @@ Fluxo de Execução:
 
 O Terraform cria a VPC, Subnet, Security Group, Chave SSH e a instância EC2 t3.micro.
 
-Após a criação da instância, o null_resource entra em ação executando um comando local na máquina do operador (runner/Mac M1).
+Após a criação da instância, o null_resource entra em ação executando um comando local na máquina do operador.
 
 O comando aguarda 30 segundos (sleep 30) para garantir o término do boot do sistema operacional e libera o acesso SSH.
 
@@ -72,3 +72,4 @@ cd terraform
 terraform destroy -auto-approve
 6. Evidências de Funcionamento
 As capturas de tela e evidências de execução da aplicação na porta 3000 e da destruição dos recursos estão salvas no diretório /evidencias.
+EOF
