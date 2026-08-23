@@ -27,49 +27,97 @@ Security Group (Portas 22, 3000)
    ^
    |
 terraform apply --> local-exec (sleep 30) --> ansible-playbook
-2. Detalhamento da Integração Terraform -> Ansible
-Estratégia Escolhida: Opção B (local-exec disparando o Ansible automaticamente).
+```
 
-Mecanismo: Foi utilizado um recurso null_resource com o provisioner local-exec no Terraform.
+## 2. Detalhamento da Integração Terraform -> Ansible
 
-Fluxo de Execução:
+**Estratégia Escolhida:** Opção B (local-exec disparando o Ansible automaticamente).
 
-O Terraform cria a VPC, Subnet, Security Group, Chave SSH e a instância EC2 t3.micro.
+**Mecanismo:** Foi utilizado um recurso `null_resource` com o provisioner `local-exec` no Terraform.
 
-Após a criação da instância, o null_resource entra em ação executando um comando local na máquina do operador.
+### Fluxo de Execução
 
-O comando aguarda 30 segundos (sleep 30) para garantir o término do boot do sistema operacional e libera o acesso SSH.
+1. O Terraform cria a VPC, Subnet, Security Group, Chave SSH e a instância EC2 `t3.micro`.
 
-O local-exec invoca o ansible-playbook informando dinamicamente o IP Público da EC2 e a chave privada gerada.
+2. Após a criação da instância, o `null_resource` entra em ação executando um comando local na máquina do operador.
 
-Garantia de Idempotência: O null_resource possui a propriedade triggers = { instance_id = aws_instance.web.id }. O Ansible só será acionado novamente se a instância EC2 for recriada/alterada no Terraform. Execuções repetidas do terraform apply resultam em nenhuma alteração (changed=0).
+3. O comando aguarda 30 segundos (`sleep 30`) para garantir o término do boot do sistema operacional e liberar o acesso SSH.
 
-Boas Práticas: Nenhum provisioner remote-exec foi utilizado. O Ansible utiliza os módulos oficiais da coleção community.docker (docker_image e docker_container) em vez de comandos shell/command.
+4. O `local-exec` invoca o `ansible-playbook` informando dinamicamente o IP Público da EC2 e a chave privada gerada.
 
-3. Gestão de Segredos (Ansible Vault)
-Variáveis sensíveis do projeto estão armazenadas criptografadas no arquivo ansible/vault.yml via ansible-vault. O arquivo .vault_pass utilizado na descriptografia automática durante a execução do Terraform está protegido no .gitignore e não é comitado no repositório.
+### Garantia de Idempotência
 
-4. Passos de Execução (Workspaces dev/prod)
-Navegue até o diretório terraform/:
+O `null_resource` possui a propriedade:
 
-Bash
+```hcl
+triggers = {
+  instance_id = aws_instance.web.id
+}
+```
+
+O Ansible só será acionado novamente se a instância EC2 for recriada/alterada no Terraform. Execuções repetidas do `terraform apply` resultam em nenhuma alteração (`changed=0`).
+
+### Boas Práticas
+
+- Nenhum provisioner `remote-exec` foi utilizado.
+- O Ansible utiliza os módulos oficiais da coleção `community.docker`.
+- Foram utilizados os módulos `docker_image` e `docker_container` em vez de comandos `shell`/`command`.
+
+---
+
+## 3. Gestão de Segredos (Ansible Vault)
+
+Variáveis sensíveis do projeto estão armazenadas criptografadas no arquivo `ansible/vault.yml` via `ansible-vault`.
+
+O arquivo `.vault_pass`, utilizado na descriptografia automática durante a execução do Terraform, está protegido no `.gitignore` e não é comitado no repositório.
+
+---
+
+## 4. Passos de Execução (Workspaces dev/prod)
+
+Navegue até o diretório `terraform/`:
+
+```bash
 cd terraform
+```
 
-# Inicializar os provedores
+### Inicializar os provedores
+
+```bash
 terraform init
+```
 
-# Criar e selecionar o workspace (ex: dev)
+### Criar e selecionar o workspace
+
+Exemplo utilizando o ambiente `dev`:
+
+```bash
 terraform workspace new dev
 terraform workspace select dev
+```
 
-# Aplicar o provisionamento (infraestrutura + aplicação via Ansible)
+### Aplicar o provisionamento
+
+O comando abaixo realiza o provisionamento da infraestrutura e a configuração da aplicação via Ansible:
+
+```bash
 terraform apply -auto-approve
-5. Passos de Destruição
+```
+
+---
+
+## 5. Passos de Destruição
+
 Para remover 100% dos recursos criados na AWS e evitar custos:
 
-Bash
+```bash
 cd terraform
 terraform destroy -auto-approve
-6. Evidências de Funcionamento
-As capturas de tela e evidências de execução da aplicação na porta 3000 e da destruição dos recursos estão salvas no diretório /evidencias.
+```
+
+---
+
+## 6. Evidências de Funcionamento
+
+As capturas de tela e evidências de execução da aplicação na porta `3000` e da destruição dos recursos estão salvas no diretório `/evidencias`.
 EOF
