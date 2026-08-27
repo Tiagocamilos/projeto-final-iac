@@ -1,4 +1,4 @@
-cat << 'EOF' > README.md
+
 # Projeto Final: Provisionamento e Configuração Integrados (Terraform + Ansible)
 
 Este projeto realiza o provisionamento automatizado de infraestrutura na AWS via Terraform e a configuração do ambiente/aplicação via Ansible, atendendo aos requisitos da disciplina de Infraestrutura como Código.
