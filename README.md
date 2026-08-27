@@ -120,4 +120,3 @@ terraform destroy -auto-approve
 ## 6. Evidências de Funcionamento
 
 As capturas de tela e evidências de execução da aplicação na porta `3000` e da destruição dos recursos estão salvas no diretório `/evidencias`.
-EOF
