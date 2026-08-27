@@ -11,38 +11,58 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Instalar Docker e o SDK Python para Docker
+    - name: Instalar dependencias (Docker, Python SDK e Git)
       ansible.builtin.apt:
         name:
           - docker.io
           - python3-docker
+          - git
         state: present
 
-    - name: Garantir que o serviço do Docker está em execução e habilitado
+    - name: Garantir que o servico do Docker esta em execucao
       ansible.builtin.service:
         name: docker
         state: started
         enabled: true
 
-    - name: Adicionar o usuário ubuntu ao grupo docker
+    - name: Adicionar o usuario ubuntu ao grupo docker
       ansible.builtin.user:
         name: ubuntu
         groups: docker
         append: true
 
-    - name: Baixar a imagem Docker da aplicação getting-started
+    - name: Clonar o repositorio oficial getting-started-app
+      ansible.builtin.git:
+        repo: 'https://github.com/docker/getting-started-app.git'
+        dest: /home/ubuntu/getting-started-app
+        update: yes
+
+    - name: Criar o Dockerfile no diretorio da aplicacao
+      ansible.builtin.copy:
+        dest: /home/ubuntu/getting-started-app/Dockerfile
+        content: |
+          FROM node:20-alpine
+          WORKDIR /app
+          COPY . .
+          RUN npm install --production
+          CMD ["node", "src/index.js"]
+          EXPOSE 3000
+
+    - name: Fazer o build da imagem Docker (sem usar shell/command)
       community.docker.docker_image:
-        name: docker/getting-started
-        source: pull
+        name: getting-started-app-image
+        build:
+          path: /home/ubuntu/getting-started-app
+        source: build
         state: present
 
-    - name: Executar o container da aplicação na porta 3000
+    - name: Executar o container da aplicacao na porta 3000
       community.docker.docker_container:
         name: getting-started-app
-        image: docker/getting-started
+        image: getting-started-app-image
         state: started
         restart_policy: always
         published_ports:
-          - "3000:80"
+          - "3000:3000"
         env:
           ADMIN_PASSWORD: "{{ admin_password }}"
